@@ -12,7 +12,7 @@ export class GameBoard {
     private static instance: GameBoard;
     private readonly boardMatrix: Cell[][];
     private readonly gridSize: number;
-
+    private readonly path: Cell[] = [];
     private constructor() {
         this.gridSize = 20; // ou la valeur que vous avez définie
         this.boardMatrix = Array.from({ length: this.gridSize }, (_, row) =>
@@ -20,7 +20,9 @@ export class GameBoard {
         
         this.generateRandomPath();
     }
-
+    public get pathCells(): Cell[] {
+        return this.path;
+    }
     public static getInstance(): GameBoard {
         if (!GameBoard.instance) {
             GameBoard.instance = new GameBoard();
@@ -43,7 +45,9 @@ export class GameBoard {
     private generateRandomPath(): void {
         const start = { x: 0, z: Math.floor(Math.random() * this.gridSize) };
 
+        console.log("----start----");
         console.log(start);
+        this.path.push(this.boardMatrix[start.x][start.z]);
         this.boardMatrix[start.x][start.z].isStart = true;
         this.boardMatrix[start.x][start.z].isPath = true;
 
@@ -52,7 +56,14 @@ export class GameBoard {
 
         let maxZposition = this.gridSize-4;
         let minZposition = 3;
-
+        const setPath = (x: number, z: number) => {
+            this.boardMatrix[x][z].isPath = true;
+            this.path.push(this.boardMatrix[x][z]);
+        };
+        while (x < this.gridSize-1){
+            x++;
+            setPath(x,z);
+        }
         /*
 
         0,0 -> en bas a gauche
@@ -80,12 +91,10 @@ export class GameBoard {
             va contenir la dernière position et on va marquer comme path toutes les cases entre last et la nouvelle.
             On ne doit pas pouvoir revenir en arrière
 
-        */
+
         let last = { x, z ,direction : Direction.Up};
 
-        const setPath = (x: number, z: number,dir : Direction) => {
-            this.boardMatrix[x][z].isPath = true;
-        };
+
         const goUp = (z: number) => {
             return
         }
@@ -144,5 +153,7 @@ export class GameBoard {
             this.boardMatrix[x][z].isPath = true;
             this.boardMatrix[x][z].isEnd = true;
         }
+
+         */
     }
 }

@@ -16,7 +16,7 @@ class App {
         
         const gameManager = GameManager.getInstance();
         const gameScene = GameScene.getInstance(scene);
-        gameManager.printBoardMatrix();
+        //gameManager.printBoardMatrix();
 
         engine.runRenderLoop(() => {
             gameScene.renderLoop();
