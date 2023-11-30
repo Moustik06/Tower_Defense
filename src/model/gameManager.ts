@@ -17,4 +17,5 @@ export class GameManager {
     public printBoardMatrix(): void {
         this.gameBoard.printBoardMatrix();
     }
+
 }

@@ -1,5 +1,4 @@
-import { Engine, Scene, Vector3, HemisphericLight, Mesh, MeshBuilder, FreeCamera } from "@babylonjs/core";
-
+import { Engine, Scene} from "@babylonjs/core";
 import {GameManager} from "./model/gameManager";
 import {GameScene} from "./view/gameScene";
 

@@ -1,4 +1,14 @@
-import { Scene,MeshBuilder,HemisphericLight,Vector3,ArcRotateCamera,StandardMaterial,Color3 } from '@babylonjs/core';
+import {
+    Scene,
+    MeshBuilder,
+    HemisphericLight,
+    Vector3,
+    ArcRotateCamera,
+    StandardMaterial,
+    Color3,
+    Matrix
+} from '@babylonjs/core';
+import {AdvancedDynamicTexture, GUI3DManager, PlanePanel, Slider3D, TextBlock} from "@babylonjs/gui";
 import { GameBoard } from '../model/gameBoard';
 import {GameController} from "../controller/gameController";
 export class GameScene {
@@ -9,10 +19,8 @@ export class GameScene {
     private constructor(private scene: Scene) {
         this.generateWorld();
         this.gameController = GameController.getInstance(this.scene, this.camera);
-        
 
     }
-
     public static getInstance(scene: Scene): GameScene {
         if (!GameScene.instance) {
             GameScene.instance = new GameScene(scene);
@@ -25,11 +33,18 @@ export class GameScene {
         this.createGround();
         this.configureCamera();
         this.createGameBoard();
+        this.createGUI();
         
 
     }
     public renderLoop(): void {
         this.gameController.update();
+        let ray = this.scene.createPickingRay(this.scene.pointerX, this.scene.pointerY, Matrix.Identity(), this.camera);
+        let pickInfo = this.scene.pickWithRay(ray);
+        if (pickInfo.hit) {
+            pickInfo.pickedMesh.position.y += 1;
+        }
+
     }
     private createGround(): void {
         const ground = MeshBuilder.CreateGround('myGround', { width: 20, height: 20 }, this.scene);
@@ -41,7 +56,16 @@ export class GameScene {
         const globalLight = new HemisphericLight('globalLight', new Vector3(0, 1, 0), this.scene);
         globalLight.intensity = 0.7;
     }
-
+    private createGUI(): void {
+        const guiTexture = AdvancedDynamicTexture.CreateFullscreenUI("UI");
+        const textPointerCoords = new TextBlock("CoordsGUI")
+        textPointerCoords.textHorizontalAlignment = TextBlock.HORIZONTAL_ALIGNMENT_LEFT
+        textPointerCoords.textVerticalAlignment = TextBlock.VERTICAL_ALIGNMENT_TOP
+        textPointerCoords.text = " X : " + "0\n" + " Y : " + "0\n" + " Z : " + "0\n"
+        textPointerCoords.color = "white"
+        textPointerCoords.fontSize = 24
+        guiTexture.addControl(textPointerCoords)
+    }
     private configureCamera(): void {
         this.camera = new ArcRotateCamera('camera1', -Math.PI / 2, Math.PI / 4, 20, Vector3.Zero(), this.scene);
 
