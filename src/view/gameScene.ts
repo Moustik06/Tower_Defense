@@ -81,11 +81,10 @@ export class GameScene {
         }
         const canPlaceTower = (position:Vector3):boolean => {
 
-            const offsetX = (20 - 1) * 0.5;
-            const offsetZ = (20 - 1) * 0.5;
+            const offset = (20 - 1) * 0.5;
 
-            const row = Math.round(position.x + offsetX);
-            const col = Math.round(position.z + offsetZ);
+            const row = Math.round(position.x + offset);
+            const col = Math.round(position.z + offset);
 
             let board = GameBoard.getInstance().getBoardMatrix();
             if (board[row][col].isPath || board[row][col].isOccupied) {
@@ -196,7 +195,7 @@ export class GameScene {
     private buyAndPlaceTower(type:string, position:Vector3):void{
         console.log("Buying and placing tower of type " + type + " at position " + position);
         let tower = MeshBuilder.CreateCylinder("tower", {diameter: 1, height: 1.5}, this.scene);
-        this.towers.push(new Tower(5,10, 5, tower));
+        this.towers.push(new Tower(5,1, 5, tower));
         tower.position = position;
     }
     private createGround(): void {

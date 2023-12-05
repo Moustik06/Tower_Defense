@@ -1,10 +1,15 @@
 import { GameBoard } from "./gameBoard";
 import {Cell} from "./Cell";
+import {Observable} from "@babylonjs/core";
 export class GameManager {
 
     private static instance: GameManager;
     private gameBoard: GameBoard;
     private money: number = 50;
+    private lives: number = 5;
+
+    private onGameEnd: Observable<void> = new Observable<void>();
+
     private constructor() {
         this.gameBoard = GameBoard.getInstance();
     }
@@ -19,8 +24,11 @@ export class GameManager {
     public printBoardMatrix(): void {
         this.gameBoard.printBoardMatrix();
     }
-    public getMoney(): number {
+    public get getMoney(): number {
         return this.money;
+    }
+    public set setMoney(money: number) {
+        this.money = money;
     }
     public getBoardMatrix() : any {
         this.gameBoard.getBoardMatrix();
@@ -44,5 +52,14 @@ export class GameManager {
 
     public enemyKilled() {
         this.addMoney(2);
+    }
+
+    public enemyReachedGoal() {
+        this.lives--;
+        console.log(`New lives: ${this.lives}`);
+        if (this.lives <= 0) {
+            this.lives = 0;
+            this.onGameEnd.notifyObservers();
+        }
     }
 }

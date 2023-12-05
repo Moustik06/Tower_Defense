@@ -64,6 +64,8 @@ export class GameBoard {
             x++;
             setPath(x,z);
         }
+        this.boardMatrix[x][z].isEnd = true;
+        console.log("----end----");
         /*
 
         0,0 -> en bas a gauche

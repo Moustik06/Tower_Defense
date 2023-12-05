@@ -10,16 +10,21 @@ export class Enemy {
     private speed: number;
     private currentPositionIndex: number = 0;
     private alive: boolean = true;
+    private static gameManager: GameManager;
     mesh: Mesh;
 
-    constructor(health,path: Path, speed: number, mesh: Mesh) {
+    constructor(health: number,path: Path, speed: number, mesh: Mesh) {
         this.health = health;
         this.path = path;
         this.speed = speed;
         this.mesh = mesh;
+        Enemy.gameManager = GameManager.getInstance();
     }
 
     public updateMovement(): void {
+        if(!this.alive){
+            return;
+        }
 
         const waypoints = this.path.getWaypoints();
 
@@ -45,7 +50,7 @@ export class Enemy {
             console.log(`New health: ${this.health}`);
             if (this.health <= 0) {
                 this.health = 0;
-                GameManager.getInstance().enemyKilled();
+                Enemy.gameManager.enemyKilled();
                 this.mesh.dispose();
                 this.alive = false;
             }
