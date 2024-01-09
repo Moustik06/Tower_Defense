@@ -55,8 +55,8 @@ export class Tower {
     private shoot(): void {
         // Logique de tir sur l'ennemi
         if (this.targetEnemy && this.targetEnemy.healthPoints > 0) {
-            console.log(this.targetEnemy);
-            const projectile = new Projectile(this.mesh.getScene(), this.mesh.position.clone(), 0.05);
+            //console.log(this.targetEnemy);
+            const projectile = new Projectile(this.mesh.getScene(), this.mesh.position.clone(), 0.05,this.damage);
             projectile.setTargetEnemy(this.targetEnemy);
             this.projectiles.push(projectile);
             this.targetEnemy.takeDamage(this.damage);

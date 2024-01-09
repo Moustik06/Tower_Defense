@@ -1,6 +1,6 @@
 import { GameBoard } from "./gameBoard";
 import {Cell} from "./Cell";
-import {Observable} from "@babylonjs/core";
+import { Observable} from "@babylonjs/core";
 export class GameManager {
 
     private static instance: GameManager;
@@ -8,7 +8,8 @@ export class GameManager {
     private money: number = 50;
     private lives: number = 5;
 
-    private onGameEnd: Observable<void> = new Observable<void>();
+    public onGameEnd: Observable<void> = new Observable<void>();
+    public onMoneyUpdate: Observable<number> = new Observable<number>();
 
     private constructor() {
         this.gameBoard = GameBoard.getInstance();
@@ -37,21 +38,20 @@ export class GameManager {
         this.money += amount;
         console.log(`New money: ${this.money}`);
     }
+
+    private priceMap = new Map<string, number>([
+        ["Tower1", 10],
+        ["Tower2", 20],
+        ["Tower3", 30]
+    ]);
+
     public getTowerCost(type:string):number{
-        switch(type){
-            case "Tower1":
-                return 10;
-            case "Tower2":
-                return 20;
-            case "Tower3":
-                return 30;
-            default:
-                return 0;
-            }
+        return this.priceMap.get(type) || 0;
     }
 
     public enemyKilled() {
         this.addMoney(2);
+        this.onMoneyUpdate.notifyObservers(this.money, 1);
     }
 
     public enemyReachedGoal() {
@@ -62,4 +62,7 @@ export class GameManager {
             this.onGameEnd.notifyObservers();
         }
     }
+
+
+
 }

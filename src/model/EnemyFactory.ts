@@ -15,7 +15,7 @@ export class EnemyFactory{
     }
 
     public createEnemy(health: number, path: Path, speed: number): Enemy {
-        const enemyMesh = MeshBuilder.CreateIcoSphere(`enemyMesh${this.enemyIndex}`, { radius: 0.6,subdivisions: 1 });
+        const enemyMesh = MeshBuilder.CreateIcoSphere(`enemyMesh_${this.enemyIndex}`, { radius: 0.6,subdivisions: 1 });
         if (path.getWaypoints().length > 0) {
             enemyMesh.position = path.getWaypoints()[0];
         }

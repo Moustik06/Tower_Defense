@@ -5,15 +5,21 @@ import { Enemy } from './Enemy';
 
 export class Projectile {
     private mesh: Mesh;
-    private speed: number;
+    private readonly speed: number;
     private targetEnemy: Enemy | null = null;
-    constructor(scene: Scene, startPosition: Vector3, speed: number) {
+    private damage:number;
+    constructor(scene: Scene, startPosition: Vector3, speed: number,dmg:number) {
         this.mesh = MeshBuilder.CreateSphere('projectile', { diameter: .5 }, scene);
         this.mesh.position = startPosition.clone();
         this.speed = speed;
+        this.damage = dmg;
     }
 
     public update(): void {
+        if (!this.mesh) {
+            return;
+        }
+
         if (this.targetEnemy && this.targetEnemy.isAlive()) {
             // Déplacez le projectile vers l'ennemi
             const direction = this.targetEnemy.mesh.position.subtract(this.mesh.position);
@@ -23,11 +29,15 @@ export class Projectile {
                 direction.normalize().scaleInPlace(moveAmount);
                 this.mesh.position.addInPlace(direction);
             } else {
+                console.log("dispose 1 ligne 28 - Projectile.ts");
                 this.dispose();
             }
-        } else {
-            // L'ennemi a été éliminé, vous pouvez choisir de disposer le projectile ou effectuer d'autres actions nécessaires.
+        } else{
+
+            // L'ennemi a été éliminé,disposer le projectile si il a atteint la dernière position de l'ennemi
+            console.log("dispose 2 ligne 34 - Projectile.ts");
             this.dispose();
+
         }
     }
 
@@ -38,5 +48,6 @@ export class Projectile {
 
     public dispose(): void {
         this.mesh.dispose();
+        this.mesh = null;
     }
 }

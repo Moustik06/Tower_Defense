@@ -40,6 +40,12 @@ export class Enemy {
                 this.currentPositionIndex++;
             }
         }
+
+        if(this.currentPositionIndex >= waypoints.length - 1){
+            this.mesh.dispose();
+            this.alive = false;
+            Enemy.gameManager.enemyReachedGoal();
+        }
     }
     public get healthPoints(): number {
         return this.health;
