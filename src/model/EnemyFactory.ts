@@ -1,5 +1,5 @@
 import {Enemy} from "./Enemy";
-import {Mesh, MeshBuilder} from "@babylonjs/core";
+import {MeshBuilder} from "@babylonjs/core";
 import {Path} from "./Path";
 
 export class EnemyFactory{

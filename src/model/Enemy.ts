@@ -1,5 +1,3 @@
-// model/Enemy.ts
-
 import { Vector3, Mesh } from '@babylonjs/core';
 import { Path } from './Path';
 import {GameManager} from "./gameManager";

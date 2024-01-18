@@ -1,6 +1,4 @@
-import {
-    ArcRotateCamera, Color3, HemisphericLight, Mesh, MeshBuilder, Observable, Scene, StandardMaterial, Vector3
-} from '@babylonjs/core';
+import {ArcRotateCamera, Color3, CubeTexture, HemisphericLight, Mesh, MeshBuilder, Observable, ParticleHelper, Scene, StandardMaterial, Vector3} from '@babylonjs/core';
 import {AdvancedDynamicTexture, Button, Control, StackPanel, TextBlock} from "@babylonjs/gui";
 import {GameBoard} from '../model/gameBoard';
 import {GameController} from "../controller/gameController";
@@ -12,19 +10,19 @@ import {Tower} from "../model/Tower";
 
 export class GameScene {
     private static instance: GameScene;
+    public onEndDisplay: Observable<boolean> = new Observable<boolean>();
+    public onStopEngine: Observable<void> = new Observable<void>();
     private camera: ArcRotateCamera;
     private gameController: GameController;
     private gui: AdvancedDynamicTexture;
     private ground: Mesh;
     private enemy: Enemy[] = [];
     private towers: Tower[] = [];
-
     private gameManager: GameManager = GameManager.getInstance();
 
-    public onEndDisplay : Observable<boolean> = new Observable<boolean>();
-    public stopEngine: Observable<void> = new Observable<void>();
     private constructor(private scene: Scene) {
         this.generateWorld();
+        this.setupSkybox();
         this.gameController = GameController.getInstance(this.scene, this.camera);
         scene.collisionsEnabled = true;
 
@@ -44,13 +42,15 @@ export class GameScene {
 
         this.gameController.update();
 
+        this.towers.forEach(tower => {
+            tower.update(this.enemy, this.scene.getEngine().getDeltaTime() / 1000);
+        });
+
         this.enemy.forEach(enemy => {
             enemy.updateMovement();
         });
 
-        this.towers.forEach(tower => {
-            tower.update(this.enemy, this.scene.getEngine().getDeltaTime() / 1000);
-        });
+
     }
 
     public createGameBoard(): void {
@@ -98,13 +98,20 @@ export class GameScene {
         }
     }
 
+    private setupSkybox(): void {
+        let cube = new CubeTexture("https://assets.babylonjs.com/environments/environmentSpecular.env", this.scene);
+        cube.level = 0.5;
+        this.scene.environmentTexture = cube;
+        this.scene.createDefaultSkybox(this.scene.environmentTexture, true, 2000, 0.15, true);
+    }
+
     private generateWorld(): void {
         this.createLight();
         this.createGround();
         this.configureCamera();
         this.createGameBoard();
         this.initGUI();
-        this.firstEnemy();
+        this.spawnEnemy();
 
     }
 
@@ -113,7 +120,6 @@ export class GameScene {
         let isPlacingTower = false;
         let currentMoney = this.gameManager.getMoney;
         let selectedTower = "";
-
         this.gui = AdvancedDynamicTexture.CreateFullscreenUI("UI");
         const updateButtonState = () => {
             const btn = ["tower1Button", "tower2Button", "tower3Button"];
@@ -162,7 +168,40 @@ export class GameScene {
             updateButtonState();
             money.text = "Money: " + currentMoney + "$";
         }, 1);
+        let stackPanel = new StackPanel();
+        stackPanel.width = "220px";
+        stackPanel.fontSize = "14px";
+        stackPanel.horizontalAlignment = Control.HORIZONTAL_ALIGNMENT_RIGHT;
+        stackPanel.verticalAlignment = Control.VERTICAL_ALIGNMENT_TOP;
+        this.gui.addControl(stackPanel);
 
+        let nukebutton = Button.CreateSimpleButton("but1", "Nuke ! - 50$");
+        nukebutton.width = "100px"
+        nukebutton.height = "50px";
+        nukebutton.color = "white";
+        nukebutton.background = "green";
+
+        nukebutton.onPointerUpObservable.add(() => {
+            if (currentMoney < 50) {
+                return;
+            }
+            currentMoney -= 50;
+            this.gameManager.setMoney = currentMoney;
+            money.text = "Money: " + currentMoney + "$";
+            updateButtonState();
+
+            ParticleHelper.CreateAsync("explosion", this.scene).then((set) => {
+                set.systems.forEach(s => {
+                    s.disposeOnStop = true;
+                });
+
+                set.start();
+            });
+            this.enemy.forEach(enemy => {
+                enemy.takeDamage(1000);
+            });
+        });
+        stackPanel.addControl(nukebutton);
         let towersTitle = new TextBlock();
         towersTitle.text = "Towers";
         towersTitle.height = "30px";
@@ -210,7 +249,7 @@ export class GameScene {
         spawnButton.color = "white";
         spawnButton.background = "green";
         spawnButton.onPointerUpObservable.add(() => {
-            this.firstEnemy();
+            this.spawnEnemy();
         });
         leftPanel.addControl(spawnButton);
         updateButtonState();
@@ -286,15 +325,13 @@ export class GameScene {
 
     private configureCamera(): void {
         this.camera = new ArcRotateCamera('camera1', -Math.PI / 2, Math.PI / 4, 20, Vector3.Zero(), this.scene);
-
         this.camera.radius = 30;
         this.camera.angularSensibilityX = 500;
         this.camera.angularSensibilityY = 500;
-
         this.camera.attachControl(this.scene.getEngine().getRenderingCanvas() as HTMLCanvasElement, true);
     }
 
-    private firstEnemy(): void {
+    private spawnEnemy(): void {
         let pathcells = GameBoard.getInstance().pathCells;
         let waypoints = [];
         let offset = (20 - 1) * 0.5;
@@ -304,15 +341,15 @@ export class GameScene {
         }
 
         const path = new Path(waypoints);
-        this.enemy.push(EnemyFactory.getInstance().createEnemy(100, path, 0.25));
+        this.enemy.push(EnemyFactory.getInstance().createEnemy(100, path, 0.02));
     }
 
     private endSceneDisplay(): void {
 
-        let test = MeshBuilder.CreateBox("test", {height:5,width:100, depth:100}, this.scene);
+        let test = MeshBuilder.CreateBox("test", {height: 5, width: 100, depth: 100}, this.scene);
         let mat = new StandardMaterial("mat", this.scene);
-        mat.diffuseColor = new Color3(0,0,0);
-        mat.specularColor = new Color3(0,0,0);
+        mat.diffuseColor = new Color3(0, 0, 0);
+        mat.specularColor = new Color3(0, 0, 0);
         test.material = mat;
         this.gui.dispose();
         let newGui = AdvancedDynamicTexture.CreateFullscreenUI("UI");
@@ -342,7 +379,6 @@ export class GameScene {
 
         panel.addControl(restartButton);
 
-
-        this.stopEngine.notifyObservers();
+        this.onStopEngine.notifyObservers();
     }
 }

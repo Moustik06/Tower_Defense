@@ -1,5 +1,3 @@
-// /src/model/GameBoard.ts
-
 import { Cell } from "./Cell";
 
 enum Direction {
@@ -18,7 +16,7 @@ export class GameBoard {
         this.boardMatrix = Array.from({ length: this.gridSize }, (_, row) =>
             Array.from({ length: this.gridSize }, (_, col) => new Cell(row, col)));
         
-        this.generateRandomPath();
+        this.generatePath();
     }
     public get pathCells(): Cell[] {
         return this.path;
@@ -42,7 +40,7 @@ export class GameBoard {
         }
     }
 
-    private generateRandomPath(): void {
+    private generatePath(): void {
         const start = { x: 0, z: Math.floor(Math.random() * this.gridSize) };
 
         console.log("----start----");
@@ -62,7 +60,15 @@ export class GameBoard {
         };
         while (x < this.gridSize-1){
             x++;
-            setPath(x,z);
+            setPath(x ,z);
+            if (x == 10){
+                z++;
+                setPath(x ,z);
+                z++
+                setPath(x ,z);
+                z++
+                setPath(x ,z);
+            }
         }
         this.boardMatrix[x][z].isEnd = true;
         console.log("----end----");

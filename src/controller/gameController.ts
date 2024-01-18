@@ -1,5 +1,3 @@
-// /src/controller/GameController.ts
-
 import { Scene, ArcRotateCamera } from '@babylonjs/core';
 
 export class GameController {
@@ -8,7 +6,7 @@ export class GameController {
     private camera: ArcRotateCamera;
     private rotationSpeed: number = 0.01;
     private keyState: { [key: string]: boolean } = {};
- pm
+
     private constructor(scene: Scene, camera: ArcRotateCamera) {
         this.scene = scene;
         this.camera = camera;

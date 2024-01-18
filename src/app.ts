@@ -16,7 +16,6 @@ class App {
 
         const gameManager = GameManager.getInstance();
         const gameScene = GameScene.getInstance(scene);
-        //gameManager.printBoardMatrix();
 
         engine.runRenderLoop(() => {
             gameScene.renderLoop();
@@ -28,7 +27,7 @@ class App {
             gameScene.onEndDisplay.notifyObservers(true);
         });
 
-        gameScene.stopEngine.add(() => {
+        gameScene.onStopEngine.add(() => {
             engine.stopRenderLoop();
         });
 

@@ -5,11 +5,11 @@ import { Vector3, Mesh } from '@babylonjs/core';
 import {Projectile} from "./Projectile";
 
 export class Tower {
-    private range: number;
-    private fireRate: number;
-    private damage: number;
+    private readonly range: number;
+    private readonly fireRate: number;
+    private readonly damage: number;
     private targetEnemy: Enemy | null = null;
-    private mesh: Mesh;
+    private readonly mesh: Mesh;
     private timeSinceLastShot: number = 0; // Ajout d'une variable pour suivre le temps écoulé depuis le dernier tir
     private projectiles: Projectile[] = [];
     constructor(range: number, fireRate: number, damage: number, mesh: Mesh) {
@@ -17,6 +17,7 @@ export class Tower {
         this.fireRate = fireRate;
         this.damage = damage;
         this.mesh = mesh;
+        this.mesh.checkCollisions = true;
     }
 
     public getMesh(): Mesh {
@@ -59,7 +60,7 @@ export class Tower {
             const projectile = new Projectile(this.mesh.getScene(), this.mesh.position.clone(), 0.05,this.damage);
             projectile.setTargetEnemy(this.targetEnemy);
             this.projectiles.push(projectile);
-            this.targetEnemy.takeDamage(this.damage);
+
         }
     }
 }
